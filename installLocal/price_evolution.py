@@ -5,12 +5,14 @@ import io
 import pandas as pd
 import os
 import sys
+from hdfs3 import HDFileSystem
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
 inputF = sys.argv[1]
 outputF = sys.argv[2]
 
+hdfs = HDFileSystem(host='sandbox-hdp.hortonworks.com', port=8020)
 
 # Metodos necesarios
 def LimpiarBarrio(pBarrio):
@@ -22,7 +24,8 @@ def LimpiarBarrio(pBarrio):
 
 
 #Visualizamos que tenemos
-df = pd.read_csv(inputF,header=[0, 1],delimiter=';',nrows=22)
+with hdfs.open(inputF) as f:
+    df = pd.read_csv(f,header=[0, 1],delimiter=';',nrows=22)
 
 #corregimos los nombres de las columnas
 as_list = df.columns.tolist() 
@@ -98,8 +101,8 @@ for row in df.iterrows():
       vAnyo = vAnyo + 1
 
 #Guardamos el .csv en el disco
-f = open(outputF,'w')
-f.write(mCsv)
+with hdfs.open(inputF) as f:
+    f.write(mCsv)
 ## Python will convert \n to os.linesep
 f.close()
 
